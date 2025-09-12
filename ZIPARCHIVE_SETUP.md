@@ -522,4 +522,3 @@ sudo systemctl restart httpd
 
 **Last Updated**: September 2025  
 **Compatible With**: PHP 8.0+, Laravel 9.0+
-
