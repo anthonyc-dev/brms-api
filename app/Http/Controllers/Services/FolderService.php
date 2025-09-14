@@ -15,7 +15,7 @@ class FolderService
     public function createFolder(Request $request)
     {
         $request->validate([
-            'folder_name' => 'required|string|max:255',
+            'folder_name' => 'required|string|max:255|unique:folders,folder_name',
             'description' => 'nullable|string',
             'date_created' => 'nullable|date',
             'folder' => 'required|array',

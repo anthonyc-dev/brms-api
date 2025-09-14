@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Resident extends Model
 {
     protected $fillable = [
         // Personal Information
+        'user_id',
         'first_name',
         'middle_name',
         'last_name',
@@ -44,6 +46,11 @@ class Resident extends Model
         'upload_id',
         'upload_date',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     protected $casts = [
         'birth_date' => 'date',

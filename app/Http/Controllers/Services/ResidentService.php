@@ -3,43 +3,17 @@
 namespace App\Http\Controllers\Services;
 
 use App\Models\Resident;
-use App\Models\User ;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\UploadedFile;
 
 class ResidentService
 {
-    public function createUser(array $data)
-    {
-        try {
-            // Validate input data
-            $validated = validator($data, [
-                'name'     => 'required|string|max:255',
-                'email'    => 'required|email|unique:users,email',
-                'password' => 'required|string|min:8',
-            ])->validate();
-
-            $user = User::create([
-                'name'     => $validated['name'],
-                'email'    => $validated['email'],
-                'password' => Hash::make($validated['password']),
-            ]);
-
-            return $user;
-        } catch (ValidationException $e) {
-            // You can handle validation errors here as needed
-            throw $e;
-        } catch (\Exception $e) {
-            // Handle other exceptions
-            throw $e;
-        }
-    }
-
     //create resident
     public function registerUser(array $data)
     {
         $validator = validator($data, [
+            // User relationship
+            'user_id' => 'required|exists:users,id',
             // Personal Information
             'first_name' => 'required|string|max:255',
             'middle_name' => 'required|string|max:255',
@@ -85,9 +59,10 @@ class ResidentService
             if (isset($data['valid_id_path']) && $data['valid_id_path'] instanceof UploadedFile) {
                 $path = $data['valid_id_path']->store('uploads/valid_ids', 'public');
                 $data['valid_id_path'] = $path; // store file path in DB
+                $data['upload_date'] = now(); // Set upload date when file is uploaded
             }
     
-            // Create resident record
+            // Create resident record with user_id
             $resident = Resident::create($data);
     
             return $resident;
@@ -101,6 +76,7 @@ class ResidentService
     public function updateUser(array $data, Resident $resident)
     {
         $validator = validator($data, [
+            'user_id' => 'required|exists:users,id',
             // Personal Information
             'first_name' => 'sometimes|required|string|max:255',
             'middle_name' => 'sometimes|required|string|max:255',
