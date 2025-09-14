@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens; 
 use App\Models\Resident;
+use App\Models\RequestDocument;
 
 class User extends Authenticatable
 {
@@ -29,6 +30,11 @@ class User extends Authenticatable
         return $this->hasOne(Resident::class);
     }
 
+        // One user can have many request documents
+    public function requestDocuments()
+    {
+        return $this->hasMany(RequestDocument::class);
+    }
     /**
      * The attributes that should be hidden for serialization.
      *

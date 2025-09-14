@@ -59,6 +59,7 @@ class AuthenticationController extends Controller
             ], 500);
         }
     }
+    
 
     /**
      * Login and return auth token.
