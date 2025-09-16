@@ -46,4 +46,36 @@ class RequestDocumentController extends Controller
             ], 500);
         }
     }
+
+    // Add update method for document request
+    public function update(Request $request, $id)
+    {
+        try {
+            $user = $request->user();
+
+            // Delegate validation and update to the service
+            $updatedRequestDocument = $this->reqService->update($id, $request->all(), $user);
+
+            return response()->json([
+                'response_code' => 200,
+                'status' => 'success',
+                'message' => 'Request document updated successfully',
+                'data' => $updatedRequestDocument
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'response_code' => 422,
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'response_code' => 500,
+                'status' => 'error',
+                'message' => 'Failed to update request document',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

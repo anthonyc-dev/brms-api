@@ -49,16 +49,14 @@ class ReqService
         }
     }
 
-    public function update(array $data, $requestDocument, $user)
+    public function update($id, array $data, $user)
     {
         try {
-            // Accept either an ID or a model instance
-            if (is_numeric($requestDocument)) {
-                $requestDocument = RequestDocument::findOrFail($requestDocument);
-            }
+            // Find the request document by ID
+            $requestDocument = RequestDocument::findOrFail($id);
 
             // Optionally, ensure the user is allowed to update this document
-            // (Uncomment if you want to restrict updates to the owner)
+            // Uncomment below to restrict updates to the owner
             // if ($requestDocument->user_id !== $user->id) {
             //     throw ValidationException::withMessages([
             //         'error' => ['You are not authorized to update this document.'],
@@ -82,7 +80,7 @@ class ReqService
 
             $validatedData = $validator->validated();
 
-            // Optionally, do not allow user_id to be changed
+            // Prevent user_id from being updated
             unset($validatedData['user_id']);
 
             $requestDocument->update($validatedData);

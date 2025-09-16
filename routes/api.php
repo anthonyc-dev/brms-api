@@ -20,8 +20,10 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         Route::post('logout', 'AuthenticationController@logOut')->name('logout');
         Route::put('update-password/{id}', 'AuthenticationController@updatePassword')->name('update-password');
         Route::post('request-document', 'RequestDocumentController@store')->name('request-document');
+        Route::put('update-document/{id}', 'RequestDocumentController@update')->name('update-document');
     });
 
+      // ------------------ Admin----------------------//
     Route::middleware('auth:admin')->group(function () {
         Route::get('admin-dashboard', 'AdminController@dashboard')->name('admin-dashboard');
         Route::post('admin-logout', 'AdminController@logOut')->name('admin-logout');
