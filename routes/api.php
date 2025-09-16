@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ResidentController;
 use App\Http\Controllers\Api\FolderController;
 use Illuminate\Support\Facades\Route;
@@ -28,16 +27,23 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         Route::get('admin-dashboard', 'AdminController@dashboard')->name('admin-dashboard');
         Route::post('admin-logout', 'AdminController@logOut')->name('admin-logout');
         Route::put('admin-update/{id}', 'AdminController@update')->name('admin-update');
+
+         // ------------------ Admin/official event----------------------//
+        Route::get('admin-get-event', 'EventController@index')->name('admin-get-event');
+        Route::get('admin-get-event-by-id/{id}', 'EventController@show')->name('admin-get-event-by-id');
+        Route::post('admin-event', 'EventController@store')->name('admin-event');
+        Route::put('admin-event-update/{id}', 'EventController@update')->name('admin-event-update');  
+        Route::delete('admin-event-delete/{id}', 'EventController@destroy')->name('admin-event-delete'); 
+        
+        // ------------------ Admin file storage----------------------//
+        Route::get('/folders', [FolderController::class, 'index']);
+        Route::post('/folders', [FolderController::class, 'store']);         
+        Route::get('/folders/download/{zipName}', [FolderController::class, 'download']); 
+        Route::get('/folders/{id}', [FolderController::class, 'show']);
+        Route::put('/folders/{id}', [FolderController::class, 'update']);
+        Route::delete('/folders/{id}', [FolderController::class, 'destroy']);
     });
 });
 
-Route::apiResource('products', ProductController::class);
+// ------------------ Resident login/register----------------------//
 Route::apiResource('residents', ResidentController::class);
-
-//folder routes
-Route::get('/folders', [FolderController::class, 'index']);
-Route::post('/folders', [FolderController::class, 'store']);         
-Route::get('/folders/download/{zipName}', [FolderController::class, 'download']); 
-Route::get('/folders/{id}', [FolderController::class, 'show']);
-Route::put('/folders/{id}', [FolderController::class, 'update']);
-Route::delete('/folders/{id}', [FolderController::class, 'destroy']);

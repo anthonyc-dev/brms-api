@@ -125,6 +125,23 @@ This document lists all available API endpoints, their purpose, authentication, 
 -   **Body (JSON)**: Fields accepted by `AdminService@update` (e.g., `name`, `username`, `role`, `password` if supported).
 -   **Postman**: Authorization → Bearer Token (admin token); Body → raw → JSON.
 
+### POST `/api/admin-event`
+
+-   **Purpose**: Create a new event (admin only).
+-   **Body (JSON)**:
+
+```json
+{
+    "title": "Event Title",
+    "description": "Event description (optional)",
+    "date": "2025-01-20"
+}
+```
+
+-   **Note**: `posted_id` and `posted_by` are automatically set from the authenticated admin.
+-   **Success**: 201 Created with event data.
+-   **Postman**: Authorization → Bearer Token (admin token); Body → raw → JSON.
+
 ---
 
 ## Products (public REST resource)

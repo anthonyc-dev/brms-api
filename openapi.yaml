@@ -1,0 +1,389 @@
+openapi: 3.0.3
+info:
+  title: BRMS API
+  description: Barangay Resident Management System API documentation (Laravel 12 + Sanctum + Admin Guard)
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development server
+
+tags:
+  - name: Authentication (User)
+  - name: Authentication (Admin)
+  - name: Users
+  - name: Residents
+  - name: Products
+  - name: Folders
+  - name: Admin Dashboard
+
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      tags: [Authentication (User)]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, password_confirmation]
+              properties:
+                name: { type: string, example: John Doe }
+                email: { type: string, example: john@example.com }
+                password: { type: string, example: secret123 }
+                password_confirmation: { type: string, example: secret123 }
+      responses:
+        "201":
+          description: User created with resident profile
+  /login:
+    post:
+      summary: Login user and obtain Sanctum token
+      tags: [Authentication (User)]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, example: john@example.com }
+                password: { type: string, example: secret123 }
+      responses:
+        "200":
+          description: Login successful, returns token
+  /admin-register:
+    post:
+      summary: Register a new admin/official
+      tags: [Authentication (Admin)]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                username: { type: string }
+                password: { type: string }
+                role: { type: string }
+      responses:
+        "201":
+          description: Admin registered
+  /admin-login:
+    post:
+      summary: Login admin and obtain token
+      tags: [Authentication (Admin)]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        "200":
+          description: Login successful
+
+  /get-user:
+    get:
+      summary: Fetch paginated users
+      tags: [Users]
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: List of users }
+
+  /logout:
+    post:
+      summary: Logout user (revoke tokens)
+      tags: [Authentication (User)]
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Logged out }
+
+  /update-password/{id}:
+    put:
+      summary: Update user password
+      tags: [Users]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, password, password_confirmation]
+              properties:
+                current_password: { type: string, example: secret123 }
+                password: { type: string, example: NewPass#1 }
+                password_confirmation: { type: string, example: NewPass#1 }
+      responses:
+        "200": { description: Password updated }
+
+  /request-document:
+    post:
+      summary: Create a document request
+      tags: [Users]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                document_type: { type: string, example: barangay_clearance }
+                notes: { type: string, example: Need for job application }
+      responses:
+        "201": { description: Document request created }
+
+  /update-document/{id}:
+    put:
+      summary: Update document request
+      tags: [Users]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200": { description: Document request updated }
+
+  /admin-dashboard:
+    get:
+      summary: Admin dashboard
+      tags: [Admin Dashboard]
+      security: [{ adminAuth: [] }]
+      responses:
+        "200": { description: Admin dashboard info }
+
+  /admin-logout:
+    post:
+      summary: Logout admin
+      tags: [Authentication (Admin)]
+      security: [{ adminAuth: [] }]
+      responses:
+        "200": { description: Admin logged out }
+
+  /admin-update/{id}:
+    put:
+      summary: Update admin record
+      tags: [Authentication (Admin)]
+      security: [{ adminAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200": { description: Admin updated }
+
+  /products:
+    get:
+      summary: List products
+      tags: [Products]
+      responses: { "200": { description: Products list } }
+    post:
+      summary: Create product
+      tags: [Products]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                price: { type: number, format: float }
+                stock: { type: integer }
+      responses: { "201": { description: Product created } }
+
+  /products/{id}:
+    get:
+      summary: Get product
+      tags: [Products]
+      parameters:
+        [{ name: id, in: path, required: true, schema: { type: integer } }]
+      responses: { "200": { description: Product details } }
+    put:
+      summary: Update product
+      tags: [Products]
+      parameters:
+        [{ name: id, in: path, required: true, schema: { type: integer } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses: { "200": { description: Product updated } }
+    delete:
+      summary: Delete product
+      tags: [Products]
+      parameters:
+        [{ name: id, in: path, required: true, schema: { type: integer } }]
+      responses: { "200": { description: Product deleted } }
+
+  /residents:
+    get:
+      summary: List residents
+      tags: [Residents]
+      responses: { "200": { description: Residents list } }
+    post:
+      summary: Create resident
+      tags: [Residents]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses: { "201": { description: Resident created } }
+
+  /residents/{id}:
+    get:
+      summary: Show resident
+      tags: [Residents]
+      parameters:
+        [{ name: id, in: path, required: true, schema: { type: integer } }]
+      responses: { "200": { description: Resident details } }
+    put:
+      summary: Update resident
+      tags: [Residents]
+      parameters:
+        [{ name: id, in: path, required: true, schema: { type: integer } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses: { "200": { description: Resident updated } }
+    delete:
+      summary: Delete resident
+      tags: [Residents]
+      parameters:
+        [{ name: id, in: path, required: true, schema: { type: integer } }]
+      responses: { "200": { description: Resident deleted } }
+
+  /folders:
+    get:
+      summary: List folders
+      tags: [Folders]
+      responses: { "200": { description: Folders list } }
+    post:
+      summary: Upload folder (zipped)
+      tags: [Folders]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                folder_name: { type: string }
+                files[]:
+                  type: array
+                  items: { type: string, format: binary }
+      responses: { "201": { description: Folder created } }
+
+  /folders/{id}:
+    get:
+      summary: Show folder
+      tags: [Folders]
+      parameters:
+        [{ name: id, in: path, required: true, schema: { type: integer } }]
+      responses: { "200": { description: Folder details } }
+    put:
+      summary: Update folder
+      tags: [Folders]
+      parameters:
+        [{ name: id, in: path, required: true, schema: { type: integer } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses: { "200": { description: Folder updated } }
+    delete:
+      summary: Delete folder
+      tags: [Folders]
+      parameters:
+        [{ name: id, in: path, required: true, schema: { type: integer } }]
+      responses: { "200": { description: Folder deleted } }
+
+  /folders/download/{zipName}:
+    get:
+      summary: Download folder zip
+      tags: [Folders]
+      parameters:
+        - name: zipName
+          in: path
+          required: true
+          schema: { type: string }
+      responses: { "200": { description: File download } }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    adminAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+    Resident:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        first_name: { type: string }
+        birth_date: { type: string, format: date }
+        contact_number: { type: string }
+    Product:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: string }
+        price: { type: number, format: float }
+        stock: { type: integer }
+    Folder:
+      type: object
+      properties:
+        id: { type: integer }
+        folder_name: { type: string }
+        zip_name: { type: string }
+        original_files:
+          type: array
+          items: { type: string }

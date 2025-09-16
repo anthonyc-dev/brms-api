@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use app\Models\Event;
 
 class Admin extends Model
 {
@@ -24,4 +25,9 @@ class Admin extends Model
     protected $casts = [
         'password' => 'hashed',
     ];
+
+    public function event()
+    {
+        return $this->hasOne(Event::class);
+    }
 }
