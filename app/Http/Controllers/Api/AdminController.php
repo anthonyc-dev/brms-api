@@ -49,7 +49,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Admin Register
+     * Admin can Register officials
      */
     public function register(Request $request)
     {
