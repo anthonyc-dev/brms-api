@@ -10,11 +10,21 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
     Route::post('register', 'AuthenticationController@register')->name('register');
     Route::post('login', 'AuthenticationController@login')->name('login');
 
+    // --------------- Admin Register and Login ----------------//
+    Route::post('admin-register', 'AdminController@register')->name('admin-register');
+    Route::post('admin-login', 'AdminController@login')->name('admin-login');
+
     // ------------------ Get Data ----------------------//
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('get-user', 'AuthenticationController@userInfo')->name('get-user');
         Route::post('logout', 'AuthenticationController@logOut')->name('logout');
         Route::post('request-document', 'RequestDocumentController@store')->name('request-document');
+    });
+
+    Route::middleware('auth:admin')->group(function () {
+        Route::get('admin-dashboard', 'AdminController@dashboard')->name('admin-dashboard');
+        Route::post('admin-logout', 'AdminController@logOut')->name('admin-logout');
+        Route::put('admin-update/{id}', 'AdminController@update')->name('admin-update');
     });
 });
 
