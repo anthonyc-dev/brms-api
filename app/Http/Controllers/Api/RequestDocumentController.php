@@ -3,37 +3,26 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Services\ReqService;
 use Illuminate\Http\Request;
-use App\Models\RequestDocument;
 use Illuminate\Validation\ValidationException;
+
 class RequestDocumentController extends Controller
 {
+    protected $reqService;
+
+    public function __construct(ReqService $reqService)
+    {
+        $this->reqService = $reqService;
+    }
+
     public function store(Request $request)
     {
         try {
             $user = $request->user();
 
-            // Validate input, but do not require user_id from client
-            $validatedData = $request->validate([
-                'document_type'   => 'required|string|max:255',
-                'full_name'       => 'required|string|max:255',
-                'address'         => 'required|string|max:255',
-                'contact_number'  => 'required|string|max:50',
-                'email'           => 'required|email|max:255',
-                'purpose'         => 'required|string',
-                'reference_number'=> 'nullable|string|max:255|unique:document_requests,reference_number',
-                'status'          => 'nullable|in:pending,processing,ready,claimed',
-            ]);
-
-            // Always use authenticated user's id
-            $validatedData['user_id'] = $user->id;
-
-            // Set default status if not provided
-            if (!isset($validatedData['status'])) {
-                $validatedData['status'] = 'pending';
-            }
-
-            $requestDocument = RequestDocument::create($validatedData);
+            // Delegate validation and creation to the service
+            $requestDocument = $this->reqService->store($request->all(), $user);
 
             return response()->json([
                 'response_code' => 201,

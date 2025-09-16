@@ -115,6 +115,49 @@ class AuthenticationController extends Controller
     }
 
     /**
+     * Update the authenticated user's password.
+     */
+    public function updatePassword(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json([
+                    'response_code' => 401,
+                    'status'        => 'error',
+                    'message'       => 'User not authenticated',
+                ], 401);
+            }
+
+            // Use AuthService to validate and update password (expects user id and request data)
+            $authService = app(AuthService::class);
+            $authService->updatePassword($user->id, $request->all());
+
+            return response()->json([
+                'response_code' => 200,
+                'status'        => 'success',
+                'message'       => 'Password updated successfully',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'response_code' => 422,
+                'status'        => 'error',
+                'message'       => 'Validation failed',
+                'errors'        => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Update Password Error: ' . $e->getMessage());
+
+            return response()->json([
+                'response_code' => 500,
+                'status'        => 'error',
+                'message'       => 'Failed to update password',
+            ], 500);
+        }
+    }
+
+    /**
      * Get list of users (paginated) — protected route.
      */
     public function userInfo()

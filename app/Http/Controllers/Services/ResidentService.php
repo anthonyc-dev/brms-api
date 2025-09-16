@@ -76,7 +76,7 @@ class ResidentService
     public function updateUser(array $data, Resident $resident)
     {
         $validator = validator($data, [
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'exists:users,id',
             // Personal Information
             'first_name' => 'sometimes|required|string|max:255',
             'middle_name' => 'sometimes|required|string|max:255',

@@ -18,6 +18,7 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('get-user', 'AuthenticationController@userInfo')->name('get-user');
         Route::post('logout', 'AuthenticationController@logOut')->name('logout');
+        Route::put('update-password/{id}', 'AuthenticationController@updatePassword')->name('update-password');
         Route::post('request-document', 'RequestDocumentController@store')->name('request-document');
     });
 
