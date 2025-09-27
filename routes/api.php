@@ -13,13 +13,21 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
     Route::post('admin-register', 'AdminController@register')->name('admin-register');
     Route::post('admin-login', 'AdminController@login')->name('admin-login');
 
-    // ------------------ Get Data ----------------------//
+    // ------------------ Get Data && users ----------------------//
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('get-user', 'AuthenticationController@userInfo')->name('get-user');
         Route::post('logout', 'AuthenticationController@logOut')->name('logout');
         Route::put('update-password/{id}', 'AuthenticationController@updatePassword')->name('update-password');
         Route::post('request-document', 'RequestDocumentController@store')->name('request-document');
         Route::put('update-document/{id}', 'RequestDocumentController@update')->name('update-document');
+        Route::delete('delete-document/{id}', 'RequestDocumentController@destroy')->name('delete-document');
+
+        // ------------------ Complainant ----------------------//
+        Route::post('complainant', 'ComplainantController@store')->name('complainant');
+        Route::get('complainant-get/{id}', 'ComplainantController@show')->name('complainant-get');
+        Route::put('complainant-update/{id}', 'ComplainantController@update')->name('complainant-update');
+        Route::delete('complainant-delete/{id}', 'ComplainantController@destroy')->name('complainant-delete');
+        Route::get('complainant-history', 'ComplainantController@index')->name('complainant-history');
     });
 
       // ------------------ Admin----------------------//

@@ -13,6 +13,7 @@ tags:
   - name: Authentication (Admin)
   - name: Users
   - name: Residents
+  - name: Complainant (User)
   - name: Products
   - name: Folders
   - name: Events (Admin)
@@ -166,6 +167,118 @@ paths:
       responses:
         "200": { description: Document request updated }
 
+  /complainant:
+    get:
+      summary: List all reports
+      tags: [Complainant (User)]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: List of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Complainant"
+
+    post:
+      summary: Create a new report
+      tags: [Complainant (User)]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Complainant"
+            example:
+              report_type: "Noise Complaint"
+              title: "Loud music at midnight"
+              description: "Neighbors playing very loud music past midnight"
+              location: "Purok 1, Main Street"
+              date_time: "2025-09-27T23:30:00Z"
+              complainant_name: "Juan Dela Cruz"
+              contact_number: "09123456789"
+              email: "juan@example.com"
+              is_anonymous: false
+              urgency_level: "medium"
+              witnesses: "Pedro Santos, 09987654321"
+              additional_info: "This happens every weekend."
+              status: "pending"
+      responses:
+        201:
+          description: Report created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complainant"
+
+  /complainant/{id}:
+    get:
+      summary: Get a single report by ID
+      tags: [Complainant (User)]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Report ID
+      responses:
+        200:
+          description: A single report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complainant"
+        404:
+          description: Report not found
+
+    put:
+      summary: Update a report
+      tags: [Complainant (User)]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Report ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Complainant"
+      responses:
+        200:
+          description: Report updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complainant"
+        404:
+          description: Report not found
+
+    delete:
+      summary: Delete a report
+      tags: [Complainant (User)]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Report ID
+      responses:
+        200:
+          description: Report deleted successfully
+        404:
+          description: Report not found
   /admin-dashboard:
     get:
       summary: Admin dashboard
@@ -489,3 +602,62 @@ components:
         original_files:
           type: array
           items: { type: string }
+    Complainant:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 2
+        report_type:
+          type: string
+          example: "Noise Complaint"
+        title:
+          type: string
+          example: "Loud music at midnight"
+        description:
+          type: string
+          example: "Neighbors playing very loud music past midnight"
+        location:
+          type: string
+          example: "Purok 1, Main Street"
+        date_time:
+          type: string
+          format: date-time
+          example: "2025-09-27T23:30:00Z"
+        complainant_name:
+          type: string
+          example: "Juan Dela Cruz"
+        contact_number:
+          type: string
+          example: "09123456789"
+        email:
+          type: string
+          example: "juan@example.com"
+        is_anonymous:
+          type: boolean
+          example: false
+        urgency_level:
+          type: string
+          enum: [low, medium, high, emergency]
+          example: "medium"
+        witnesses:
+          type: string
+          example: "Pedro Santos, 09987654321"
+        additional_info:
+          type: string
+          example: "This happens every weekend."
+        status:
+          type: string
+          enum: [pending, under_investigation, resolved, rejected]
+          example: "pending"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-09-28T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-09-28T00:00:00Z"

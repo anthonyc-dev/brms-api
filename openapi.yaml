@@ -13,6 +13,7 @@ tags:
   - name: Authentication (Admin)
   - name: Users
   - name: Residents
+  - name: Complainant (User)
   - name: Products
   - name: Folders
   - name: Events (Admin)
@@ -165,6 +166,80 @@ paths:
               additionalProperties: true
       responses:
         "200": { description: Document request updated }
+
+  /complainant:
+    post:
+      tags: [Complainant (User)]
+      security: [{ bearerAuth: [] }]
+      summary: Create a new complainant report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - report_type
+                - title
+                - description
+                - location
+                - date_time
+                - urgency_level
+              properties:
+                report_type:
+                  type: string
+                  example: Noise Complaint
+                title:
+                  type: string
+                  example: Loud music at midnight
+                description:
+                  type: string
+                  example: Loud party happening past midnight in the neighborhood.
+                location:
+                  type: string
+                  example: Purok 1, Main Street
+                date_time:
+                  type: string
+                  format: date-time
+                  example: "2025-09-27 23:30:00"
+                complainant_name:
+                  type: string
+                  example: Juan Dela Cruz
+                contact_number:
+                  type: string
+                  example: "09123456789"
+                email:
+                  type: string
+                  format: email
+                  example: juan@example.com
+                is_anonymous:
+                  type: boolean
+                  example: false
+                urgency_level:
+                  type: string
+                  enum: [low, medium, high, emergency]
+                  example: medium
+                witnesses:
+                  type: string
+                  example: Pedro Santos, 09987654321
+                additional_info:
+                  type: string
+                  example: This happens every weekend.
+                status:
+                  type: string
+                  enum: [pending, under_investigation, resolved, rejected]
+                  example: pending
+      responses:
+        "201":
+          description: Report created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complainant"
+        "422":
+          description: Validation error
+        "500":
+          description: Server error
 
   /admin-dashboard:
     get:
