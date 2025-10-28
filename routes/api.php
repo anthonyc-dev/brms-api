@@ -55,3 +55,4 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
 
 // ------------------ Resident login/register----------------------//
 Route::apiResource('residents', ResidentController::class);
+Route::get('residents/by-user/{userId}', [App\Http\Controllers\Api\ResidentController::class, 'showByUserId'])->name('residents.by-user');

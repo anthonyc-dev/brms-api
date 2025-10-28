@@ -154,4 +154,45 @@ class ResidentController extends Controller
             ], 500);
         }
     }
+
+/**
+ * Display details for a resident by user ID.
+ *
+ * @param  int  $userId
+ * @return \Illuminate\Http\JsonResponse
+ */
+public function showByUserId($userId)
+{
+    try {
+        $resident = Resident::where('user_id', $userId)->first();
+
+        if (!$resident) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Resident not found for given user id'
+            ], 404);
+        }
+
+        // ✅ Convert stored image path to full public URL
+        if ($resident->valid_id_path) {
+            $resident->valid_id_url = asset('storage/' . $resident->valid_id_path);
+        } else {
+            $resident->valid_id_url = null;
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $resident
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to retrieve resident details',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 }
+
+}
+
