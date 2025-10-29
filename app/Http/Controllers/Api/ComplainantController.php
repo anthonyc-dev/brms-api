@@ -62,9 +62,10 @@ class ComplainantController extends Controller
     /**
      * Show single report
      */
-    public function show($id): JsonResponse
+    public function show($user_id): JsonResponse    
     {
-        $report = $this->complainantService->getReportById($id);
+        $report = \App\Models\Complainant::where('user_id', $user_id)->get();
+
         if (!$report) {
             return response()->json(['message' => 'Report not found'], 404);
         }

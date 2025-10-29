@@ -78,4 +78,39 @@ class RequestDocumentController extends Controller
             ], 500);
         }
     }
+
+    
+    // Add show method for fetching request documents by user_id
+    public function getDocumentsById($userId)
+    {
+        try {
+            $requestDocuments = \App\Models\RequestDocument::where('user_id', $userId)->get();
+
+            if ($requestDocuments->isEmpty()) {
+                return response()->json([
+                    'response_code' => 404,
+                    'status' => 'error',
+                    'message' => 'No request documents found for this user',
+                    'data' => []
+                ], 404);
+            }
+
+            return response()->json([
+                'response_code' => 200,
+                'status' => 'success',
+                'message' => 'Request documents retrieved successfully',
+                'data' => $requestDocuments
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'response_code' => 500,
+                'status' => 'error',
+                'message' => 'Failed to fetch request documents',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 }
+
+
