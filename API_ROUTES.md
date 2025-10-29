@@ -99,11 +99,23 @@ This document lists all available API endpoints, their purpose, authentication, 
 -   **Success**: 201 Created with created request data.
 -   **Postman**: Authorization → Bearer Token; Body → raw → JSON.
 
+### GET `/api/get-document/{userId}`
+
+-   **Purpose**: Fetch all request documents for a specific user, ordered by newest first.
+-   **Success**: 200 OK with array of documents, or 404 if none found.
+-   **Postman**: Authorization → Bearer Token; No body.
+
 ### PUT `/api/update-document/{id}`
 
 -   **Purpose**: Update an existing document request by ID for the authenticated user.
 -   **Body (JSON)**: Fields allowed by `ReqService@update`.
 -   **Postman**: Authorization → Bearer Token; Body → raw → JSON.
+
+### DELETE `/api/delete-document/{id}`
+
+-   **Purpose**: Delete a document request owned by the authenticated user.
+-   **Success**: 200 OK with success message; 404 if not found or not owned by user.
+-   **Postman**: Authorization → Bearer Token; No body.
 
 ---
 
@@ -144,30 +156,6 @@ This document lists all available API endpoints, their purpose, authentication, 
 
 ---
 
-## Products (public REST resource)
-
-Base: `/api/products`
-
--   GET `/api/products` — List products
--   POST `/api/products` — Create product
-    -   Body (JSON):
-    ```json
-    {
-        "name": "Notebook",
-        "description": "A5 ruled",
-        "price": 99.5,
-        "stock": 10
-    }
-    ```
--   GET `/api/products/{id}` — Get product by ID
--   PUT `/api/products/{id}` — Update product
-    -   Body (JSON): any of `name`, `description`, `price`, `stock`
--   DELETE `/api/products/{id}` — Delete product
-
-Postman: For create/update, Body → raw → JSON. These routes are not guarded in `routes/api.php`.
-
----
-
 ## Residents (public REST resource)
 
 Base: `/api/residents`
@@ -184,14 +172,16 @@ Postman: For create/update, Body → raw → JSON. These routes are not guarded 
 
 ---
 
-## Folders (file upload and zipped download)
+## Folders (admin-only file storage)
 
 Base: `/api/folders`
+
+All folder routes are protected by the admin guard and require `Authorization: Bearer <admin_token>`.
 
 ### GET `/api/folders`
 
 -   **Purpose**: List all folders.
--   **Postman**: No auth; Send request.
+-   **Postman**: Authorization → Bearer Token (admin token).
 
 ### POST `/api/folders`
 
@@ -200,28 +190,28 @@ Base: `/api/folders`
     -   One or more `files[]` entries of type File (select multiple files)
     -   Optional metadata fields as supported by `FolderService@createFolder` (e.g., `folder_name`)
 -   **Response**: 201 Created with `folder` and `download_url`.
--   **Postman**: Body → form-data → add key `files[]` (type: File), add multiple file rows.
+-   **Postman**: Authorization → Bearer Token (admin token); Body → form-data → add key `files[]` (type: File), add multiple file rows.
 
 ### GET `/api/folders/download/{zipName}`
 
 -   **Purpose**: Download a previously created zip by name.
--   **Postman**: No auth; paste the `zipName` from prior response or storage.
+-   **Postman**: Authorization → Bearer Token (admin token); paste the `zipName` from prior response or storage.
 
 ### GET `/api/folders/{id}`
 
 -   **Purpose**: Fetch a folder by numeric ID.
--   **Postman**: No auth.
+-   **Postman**: Authorization → Bearer Token (admin token).
 
 ### PUT `/api/folders/{id}`
 
 -   **Purpose**: Update folder metadata.
 -   **Body**: JSON or form fields as supported by `FolderService@updateFolder`.
--   **Postman**: Body → raw → JSON (or form-data if needed).
+-   **Postman**: Authorization → Bearer Token (admin token); Body → raw → JSON (or form-data if needed).
 
 ### DELETE `/api/folders/{id}`
 
 -   **Purpose**: Delete folder by ID.
--   **Postman**: No auth.
+-   **Postman**: Authorization → Bearer Token (admin token).
 
 ---
 

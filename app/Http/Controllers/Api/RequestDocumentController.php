@@ -84,7 +84,7 @@ class RequestDocumentController extends Controller
     public function getDocumentsById($userId)
     {
         try {
-            $requestDocuments = \App\Models\RequestDocument::where('user_id', $userId)->get();
+            $requestDocuments = \App\Models\RequestDocument::where('user_id', $userId)->orderBy('created_at', 'desc')->get();
 
             if ($requestDocuments->isEmpty()) {
                 return response()->json([
@@ -110,6 +110,40 @@ class RequestDocumentController extends Controller
             ], 500);
         }
     }
+   
+    public function destroy(Request $request, $id)
+    {
+        try {
+            $user = $request->user();
+
+            // Delegate deletion to service
+            $deleted = $this->reqService->destroyById($id, $user);
+
+            if (!$deleted) {
+                return response()->json([
+                    'response_code' => 404,
+                    'status' => 'error',
+                    'message' => 'Request document not found or unauthorized to delete',
+                ], 404);
+            }
+
+            return response()->json([
+                'response_code' => 200,
+                'status' => 'success',
+                'message' => 'Request document deleted successfully',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'response_code' => 500,
+                'status' => 'error',
+                'message' => 'Failed to delete request document',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    
 
 }
 

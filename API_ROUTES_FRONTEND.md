@@ -46,21 +46,22 @@ This document lists all available API routes and their HTTP methods that are rea
 
 ### Document Requests
 
-| Method   | Endpoint                    | Purpose                 | Request Body               | Response Fields                                                                                                          |
-| -------- | --------------------------- | ----------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `POST`   | `/api/request-document`     | Create document request | `{ document_type, notes }` | `{ response_code: 201, status: "success", message: "Request document created successfully", data: { document_object } }` |
-| `PUT`    | `/api/update-document/{id}` | Update document request | `{ document_fields }`      | `{ response_code: 200, status: "success", message: "Request document updated successfully", data: { document_object } }` |
-| `DELETE` | `/api/delete-document/{id}` | Delete document request | -                          | **Note**: This route exists in routes but destroy method not implemented in controller                                   |
+| Method   | Endpoint                     | Purpose                              | Request Body               | Response Fields                                                                                                          |
+| -------- | ---------------------------- | ------------------------------------ | -------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `POST`   | `/api/request-document`      | Create document request              | `{ document_type, notes }` | `{ response_code: 201, status: "success", message: "Request document created successfully", data: { document_object } }` |
+| `GET`    | `/api/get-document/{userId}` | Get all request documents for a user | -                          | `{ response_code: 200, status: "success", message: "Request documents retrieved successfully", data: [ ... ] }`          |
+| `PUT`    | `/api/update-document/{id}`  | Update document request              | `{ document_fields }`      | `{ response_code: 200, status: "success", message: "Request document updated successfully", data: { document_object } }` |
+| `DELETE` | `/api/delete-document/{id}`  | Delete own document request          | -                          | `{ response_code: 200, status: "success", message: "Request document deleted successfully" }` or 404 if not found        |
 
 ### Complaints/Reports
 
-| Method   | Endpoint                       | Purpose                      | Request Body                                                                                                                                                         | Response Fields                                                                         |
-| -------- | ------------------------------ | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `POST`   | `/api/complainant`             | Create new complaint/report  | `{ report_type, title, description, location, date_time, complainant_name, contact_number, email, is_anonymous, urgency_level, witnesses, additional_info, status }` | `{ complaint_object }` (201)                                                            |
-| `GET`    | `/api/complainant-get/{id}`    | Get complaint by ID          | -                                                                                                                                                                    | `{ complaint_object }` or `{ message: "Report not found" }` (404)                       |
-| `PUT`    | `/api/complainant-update/{id}` | Update complaint             | `{ status, title, description, location, urgency_level }`                                                                                                            | `{ complaint_object }` or `{ message: "Report not found" }` (404)                       |
-| `DELETE` | `/api/complainant-delete/{id}` | Delete complaint             | -                                                                                                                                                                    | `{ message: "Report deleted successfully" }` or `{ message: "Report not found" }` (404) |
-| `GET`    | `/api/complainant-history`     | Get user's complaint history | -                                                                                                                                                                    | `{ complaint_objects_array }`                                                           |
+| Method   | Endpoint                        | Purpose                                      | Request Body                                                                                                                                                         | Response Fields                                                                         |
+| -------- | ------------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `POST`   | `/api/complainant`              | Create new complaint/report                  | `{ report_type, title, description, location, date_time, complainant_name, contact_number, email, is_anonymous, urgency_level, witnesses, additional_info, status }` | `{ complaint_object }` (201)                                                            |
+| `GET`    | `/api/complainant-get/{userId}` | Get all complaints for a user (newest first) | -                                                                                                                                                                    | `[ complaint_object, ... ]` or 404 if none                                              |
+| `PUT`    | `/api/complainant-update/{id}`  | Update complaint                             | `{ status, title, description, location, urgency_level }`                                                                                                            | `{ complaint_object }` or `{ message: "Report not found" }` (404)                       |
+| `DELETE` | `/api/complainant-delete/{id}`  | Delete complaint                             | -                                                                                                                                                                    | `{ message: "Report deleted successfully" }` or `{ message: "Report not found" }` (404) |
+| `GET`    | `/api/complainant-history`      | Get complaint history (all reports)          | -                                                                                                                                                                    | `{ complaint_objects_array }`                                                           |
 
 ---
 
@@ -84,7 +85,9 @@ This document lists all available API routes and their HTTP methods that are rea
 | `PUT`    | `/api/admin-event-update/{id}`    | Update event     | `{ event_fields }`             | `{ message: "Event updated successfully.", event: { event_object } }`       |
 | `DELETE` | `/api/admin-event-delete/{id}`    | Delete event     | -                              | `{ message: "Event deleted successfully." }`                                |
 
-### File Storage Management
+### File Storage Management (Admin only)
+
+All routes below require `Authorization: Bearer <admin_token>`.
 
 | Method   | Endpoint                          | Purpose                | Request Body      | Response Fields                                                                                                                  |
 | -------- | --------------------------------- | ---------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |

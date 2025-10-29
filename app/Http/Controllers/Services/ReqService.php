@@ -94,4 +94,21 @@ class ReqService
             ]);
         }
     }
+
+    public function destroyById($id, $user)
+   {
+        $query = RequestDocument::where('id', $id)
+                    ->where('user_id', $user->id);
+
+        $document = $query->first();
+
+        if (!$document) {
+            return false; // Not found or not owned by this user
+        }
+
+        $document->delete();
+
+        return true;
+    }
+
 }
