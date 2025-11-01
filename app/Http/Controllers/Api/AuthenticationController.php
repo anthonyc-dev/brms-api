@@ -426,4 +426,43 @@ class AuthenticationController extends Controller
         }
     }
 
+    public function getProfileById($id)
+    {
+        try {
+            $user = User::where('id', $id)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'response_code' => 404,
+                    'status'        => 'error',
+                    'message'       => 'User not found',
+                ], 404);
+            }
+
+            return response()->json([
+                'response_code' => 200,
+                'status'        => 'success',
+                'message'       => 'Profile retrieved successfully',
+                'user_info'     => [
+                    'id'          => $user->id,
+                    'name'        => $user->name,
+                    'email'       => $user->email,
+                    'profile'     => $user->profile,
+                    'profile_url' => $user->profile_url,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get Profile By Id Error', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            return response()->json([
+                'response_code' => 500,
+                'status'        => 'error',
+                'message'       => 'Failed to get profile',
+            ], 500);
+        }
+    }
+
 }

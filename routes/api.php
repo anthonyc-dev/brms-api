@@ -19,7 +19,7 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         Route::post('logout', 'AuthenticationController@logOut')->name('logout');
         Route::put('update-password/{id}', 'AuthenticationController@updatePassword')->name('update-password');
         Route::post('update-profile/{id}', 'AuthenticationController@updateProfile')->name('update-profile');
-        Route::put('update-profile/{id}', 'AuthenticationController@updateProfile');
+        Route::get('get-profile/{id}', 'AuthenticationController@getProfileById')->name('get-profile');
         Route::post('request-document', 'RequestDocumentController@store')->name('request-document');
         Route::get('get-document/{userId}', 'RequestDocumentController@getDocumentsById')->name('get-document');
         Route::put('update-document/{id}', 'RequestDocumentController@update')->name('update-document');
