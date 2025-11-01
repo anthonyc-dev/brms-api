@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(if not exist \"c:\\Users\\Hp\\Downloads\\GUI-20250813T054956Z-1-001\\server-brms\\api\\storage\\app\\public\\profiles\" mkdir \"c:\\Users\\Hp\\Downloads\\GUI-20250813T054956Z-1-001\\server-brms\\api\\storage\\app\\public\\profiles\")",
+      "Bash(mkdir:*)",
+      "Bash(chmod:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

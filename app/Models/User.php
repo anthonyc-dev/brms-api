@@ -22,8 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'profile',
     ];
-
+    
 
     public function resident()
     {
@@ -56,5 +57,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the full URL for the profile image.
+     *
+     * @return string|null
+     */
+    public function getProfileUrlAttribute()
+    {
+        if (!$this->profile) {
+            return null;
+        }
+
+        // If the profile path already starts with http/https, return as is
+        if (str_starts_with($this->profile, 'http://') || str_starts_with($this->profile, 'https://')) {
+            return $this->profile;
+        }
+
+        // Generate the URL using asset helper
+        return asset('storage/' . $this->profile);
     }
 }

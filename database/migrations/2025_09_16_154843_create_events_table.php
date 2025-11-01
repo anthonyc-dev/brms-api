@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('events', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('posted_id')->constrained('admin')->onDelete('cascade');
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->date('date');
-            $table->string('posted_by');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('events')) {
+            Schema::create('events', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('posted_id')->constrained('admin')->onDelete('cascade');
+                $table->string('title');
+                $table->text('description')->nullable();
+                $table->date('date');
+                $table->string('posted_by');
+                $table->timestamps();
+            });
+        }
     }
 
     /**
