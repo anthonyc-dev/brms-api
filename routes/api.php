@@ -32,6 +32,7 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         Route::delete('complainant-delete/{id}', 'ComplainantController@destroy')->name('complainant-delete');
         Route::get('complainant-history', 'ComplainantController@index')->name('complainant-history');
     });
+    
 
       // ------------------ Admin----------------------//
     Route::middleware('auth:admin')->group(function () {
@@ -53,7 +54,16 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         Route::get('/folders/{id}', [FolderController::class, 'show']);
         Route::put('/folders/{id}', [FolderController::class, 'update']);
         Route::delete('/folders/{id}', [FolderController::class, 'destroy']);
+
+        //-----admin update-------//
+        Route::get('getById/{id}', 'AdminController@getById')->name('getById');  
+        
     });
+   //-------General Routes-----------------------//
+    Route::get('admin-get-event', 'EventController@index')->name('admin-get-event');
+    Route::get('getAllByPosted/{posted_by}', 'EventController@getAllByPosted')->name('getAllByPosted');
+
+    
 });
 
 // ------------------ Resident login/register----------------------//

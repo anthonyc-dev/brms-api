@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Services\EventService;
+use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -115,4 +116,26 @@ class EventController extends Controller
             'message' => 'Event deleted successfully.'
         ]);
     }
+
+
+    public function getAllByPosted(string $posted_by): JsonResponse
+    {
+        // Validate allowed roles
+        $allowedPostedBy = ['admin', 'official'];
+        if (!in_array($posted_by, $allowedPostedBy)) {
+            return response()->json([
+                'error' => 'Invalid posted_by specified.',
+                'code' => 422,
+            ], 422);
+        }
+    
+        // Fetch all events by posted_by
+        $events = Event::where('posted_by', $posted_by)->get();
+    
+        return response()->json([
+            'posted_by' => $posted_by,
+            'events' => $events,
+        ]);
+    }
+    
 }

@@ -118,7 +118,7 @@ class AdminController extends Controller
                 'username' => $updatedAdmin->username,
                 'role'     => $updatedAdmin->role,
                 'message'  => $admin->role. ' updated successfully.',
-            ]);
+            ], 201);
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed.',
@@ -159,6 +159,40 @@ class AdminController extends Controller
             Log::error('Admin Logout Error: ' . $e->getMessage());
             return response()->json([
                 'message' => 'An error occurred during logout.',
+            ], 500);
+        }
+
+        
+    }
+
+    
+    /**
+     * Get an admin by ID.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getById($id)
+    {
+        try {
+            $admin = Admin::find($id);
+
+            if (!$admin) {
+                return response()->json([
+                    'message' => 'Admin not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'id'       => $admin->id,
+                'name'     => $admin->name,
+                'username' => $admin->username,
+                'role'     => $admin->role,
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Admin Get By Id Error: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'An error occurred while retrieving admin.',
             ], 500);
         }
     }
