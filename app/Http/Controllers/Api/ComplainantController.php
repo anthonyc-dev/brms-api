@@ -78,13 +78,21 @@ class ComplainantController extends Controller
     public function update(Request $request, $id): JsonResponse
     {
         $validated = $request->validate([
-            'status' => 'nullable|in:pending,under_investigation,resolved,rejected',
+            'report_type' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'location' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'date_time' => 'nullable|date',
+            'complainant_name' => 'nullable|string|max:255',
+            'contact_number' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'is_anonymous' => 'nullable|boolean',
             'urgency_level' => 'nullable|in:low,medium,high,emergency',
+            'witnesses' => 'nullable|string',
+            'additional_info' => 'nullable|string',
+            'status' => 'nullable|in:pending,under_investigation,resolved,rejected',
         ]);
-
+        
         
 
         $report = $this->complainantService->updateReport($id, $validated);
