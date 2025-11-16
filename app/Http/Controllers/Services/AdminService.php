@@ -96,6 +96,7 @@ class AdminService
             'name'     => 'sometimes|required|string|min:3|max:255',
             'username' => 'sometimes|required|string|min:3|max:255|unique:admins,username,' . $admin->id,
             'password' => 'sometimes|required|string',
+            'role'     => 'sometimes|required|in:admin,official',
         ];
 
         $validator = Validator::make($data, $rules);
@@ -113,6 +114,9 @@ class AdminService
             }
             if (isset($data['password'])) {
                 $admin->password = Hash::make($data['password']);
+            }
+            if (isset($data['role'])) {
+                $admin->role = $data['role'];
             }
             $admin->save();
 

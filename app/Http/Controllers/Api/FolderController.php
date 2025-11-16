@@ -81,19 +81,30 @@ class FolderController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
-        // Call the service method
-        $folder = $this->folderService->updateFolder($id, $request);
-
-        if (!$folder) {
-            return response()->json(['error' => 'Folder not found'], 404);
+        try {
+            // Call the service method
+            $folder = $this->folderService->updateFolder($id, $request);
+    
+            if (!$folder) {
+                return response()->json(['error' => 'Folder not found'], 404);
+            }
+    
+            return response()->json([
+                'message' => 'Folder updated successfully',
+                'folder' => $folder
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to update folder',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'message' => 'Folder updated successfully',
-            'folder' => $folder
-        ]);
-    }   
+    }
 
     /**
      * Delete folder
@@ -106,5 +117,90 @@ class FolderController extends Controller
         }
         return response()->json(['message' => 'Folder deleted successfully']);
     }
+
+    /**
+ * Download selected files from a folder
+ */
+public function downloadSelected(Request $request, $id)
+{
+    try {
+        $request->validate([
+            'files' => 'required|array',
+            'files.*' => 'required|string',
+        ]);
+
+        $result = $this->folderService->downloadSelectedFiles($id, $request->files);
+        
+        if (!$result) {
+            return response()->json(['error' => 'Folder not found'], 404);
+        }
+
+        // Return the file as a download response
+        $response = response()->download($result['zip_path'], $result['zip_name']);
+        
+        // Delete the temp file after sending
+        $response->deleteFileAfterSend(true);
+        
+        return $response;
+    } catch (\Exception $e) {
+        Log::error('Download selected files error: ' . $e->getMessage());
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
+
+/**
+ * Download a single file from a folder's zip archive.
+ */
+public function downloadSingle(Request $request, $id)
+{
+    try {
+        $request->validate([
+            'file' => 'required|string'
+        ]);
+
+        $folder = $this->folderService->getFolderById($id);
+        if (!$folder) {
+            return response()->json(['error' => 'Folder not found'], 404);
+        }
+
+        // Get path to the zip file
+        $zipPath = storage_path("app/public/uploads/folder-zip/{$folder->zip_name}");
+        if (!file_exists($zipPath)) {
+            return response()->json(['error' => 'Folder zip file not found'], 404);
+        }
+
+        $zip = new \ZipArchive;
+        if ($zip->open($zipPath) !== true) {
+            return response()->json(['error' => 'Could not open zip file'], 500);
+        }
+
+        $fileName = $request->file;
+        $index = $zip->locateName($fileName);
+
+        if ($index === false) {
+            $zip->close();
+            return response()->json(['error' => 'Requested file not found in zip'], 404);
+        }
+
+        $fileContent = $zip->getFromIndex($index);
+        $zip->close();
+
+        if ($fileContent === false) {
+            return response()->json(['error' => 'Could not extract file from zip'], 500);
+        }
+
+        // Create a temporary file for response
+        $tmpFilePath = tempnam(sys_get_temp_dir(), 'single_file_');
+        file_put_contents($tmpFilePath, $fileContent);
+
+        return response()->download($tmpFilePath, $fileName)->deleteFileAfterSend(true);
+
+    } catch (\Exception $e) {
+        Log::error('Download single file error: ' . $e->getMessage());
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
 
 }

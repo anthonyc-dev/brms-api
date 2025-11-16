@@ -196,4 +196,62 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Delete an admin by ID.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($id)
+    {
+        try {
+            $admin = Admin::find($id);
+
+            if (!$admin) {
+                return response()->json([
+                    'message' => 'Admin not found.',
+                ], 404);
+            }
+
+            $admin->delete();
+
+            return response()->json([
+                'message' => 'Admin deleted successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Admin Delete Error: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'An error occurred while deleting admin.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Display a listing of all admins.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
+        try {
+            // Order admins by newest first
+            $admins = Admin::orderBy('id', 'desc')->get();
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Display all admins successfully.',
+                'data' => $admins
+            ], 200);
+    
+        } catch (\Exception $e) {
+            Log::error('Admin Index Error: ' . $e->getMessage());
+    
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while retrieving admins.',
+            ], 500);
+        }
+    }
+     
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Services\ReqService;
+use App\Models\RequestDocument;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -84,7 +85,7 @@ class RequestDocumentController extends Controller
     public function getDocumentsById($userId)
     {
         try {
-            $requestDocuments = \App\Models\RequestDocument::where('user_id', $userId)->orderBy('created_at', 'desc')->get();
+            $requestDocuments = RequestDocument::where('user_id', $userId)->orderBy('created_at', 'desc')->get();
 
             if ($requestDocuments->isEmpty()) {
                 return response()->json([
@@ -143,7 +144,31 @@ class RequestDocumentController extends Controller
         }
     }
 
-    
+    /**
+     * Get all request documents.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
+        try {
+            $requestDocuments = RequestDocument::all();
+
+            return response()->json([
+                'response_code' => 200,
+                'status' => 'success',
+                'message' => 'All request documents retrieved successfully',
+                'data' => $requestDocuments
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'response_code' => 500,
+                'status' => 'error',
+                'message' => 'Failed to fetch all request documents',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
 }
 

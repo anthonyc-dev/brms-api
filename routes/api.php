@@ -20,11 +20,8 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         Route::put('update-password/{id}', 'AuthenticationController@updatePassword')->name('update-password');
         Route::post('update-profile/{id}', 'AuthenticationController@updateProfile')->name('update-profile');
         Route::get('get-profile/{id}', 'AuthenticationController@getProfileById')->name('get-profile');
-        Route::post('request-document', 'RequestDocumentController@store')->name('request-document');
-        Route::get('get-document/{userId}', 'RequestDocumentController@getDocumentsById')->name('get-document');
-        Route::put('update-document/{id}', 'RequestDocumentController@update')->name('update-document');
-        Route::delete('delete-document/{id}', 'RequestDocumentController@destroy')->name('delete-document');
-
+       
+       
         // ------------------ Complainant ----------------------//
         Route::post('complainant', 'ComplainantController@store')->name('complainant');
         Route::get('complainant-get/{userId}', 'ComplainantController@show')->name('complainant-get');
@@ -38,7 +35,10 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
     Route::middleware('auth:admin')->group(function () {
         Route::get('admin-dashboard', 'AdminController@dashboard')->name('admin-dashboard');
         Route::post('admin-logout', 'AdminController@logOut')->name('admin-logout');
+        Route::get('admin-display', 'AdminController@index')->name('admin-display');
+        Route::get('admin-displayById/{id}', 'AdminController@getById')->name('admin-display');
         Route::put('admin-update/{id}', 'AdminController@update')->name('admin-update');
+        Route::delete('admin-delete/{id}', 'AdminController@destroy')->name('admin-delete');
 
          // ------------------ Admin/official event----------------------//
         Route::get('admin-get-event', 'EventController@index')->name('admin-get-event');
@@ -54,16 +54,27 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         Route::get('/folders/{id}', [FolderController::class, 'show']);
         Route::put('/folders/{id}', [FolderController::class, 'update']);
         Route::delete('/folders/{id}', [FolderController::class, 'destroy']);
-
+        Route::post('/folders/{id}/download-selected', [FolderController::class, 'downloadSelected']); 
+        Route::post('/folders/downloadSingle/{id}', [FolderController::class, 'downloadSingle']);
+    
         //-----admin update-------//
-        Route::get('getById/{id}', 'AdminController@getById')->name('getById');  
+        Route::get('getById/{id}', 'AdminController@getById')->name('getById');
+        
+    
         
     });
    //-------General Routes-----------------------//
     Route::get('admin-get-event', 'EventController@index')->name('admin-get-event');
     Route::get('getAllByPosted/{posted_by}', 'EventController@getAllByPosted')->name('getAllByPosted');
 
-    
+       // ------------------ Routes Accessible by Both Sanctum & Admin ----------------//
+       Route::middleware('auth:admin,sanctum')->group(function () {
+        Route::post('request-document', 'RequestDocumentController@store')->name('request-document');
+        Route::get('get-document/{userId}', 'RequestDocumentController@getDocumentsById')->name('get-document');
+        Route::put('update-document/{id}', 'RequestDocumentController@update')->name('update-document');
+        Route::delete('delete-document/{id}', 'RequestDocumentController@destroy')->name('delete-document');
+        Route::get('getAlldocument', 'RequestDocumentController@index')->name('getAlldocument');
+    });
 });
 
 // ------------------ Resident login/register----------------------//

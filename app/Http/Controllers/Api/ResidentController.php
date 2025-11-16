@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Services\ResidentService;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Storage;
+
 class ResidentController extends Controller
 {
     protected $residentService;
@@ -23,19 +25,32 @@ class ResidentController extends Controller
     public function index()
     {
         try {
-            $residents = Resident::all();
+            // Order by ID DESC (change 'id' to any field you want)
+            $residents = Resident::orderBy('id', 'desc')
+                ->get()
+                ->map(function ($resident) {
+                    $resident->valid_id_url = $resident->valid_id_path
+                        ? asset(Storage::url($resident->valid_id_path))
+                        : null;
+    
+                    return $resident;
+                });
+    
             return response()->json([
                 'status' => 'success',
+                'message' => 'Residents retrieved successfully',
                 'data' => $residents
             ], 200);
+    
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to retrieve residents'
+                'message' => 'Failed to retrieve residents',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
-
+    
     /**
      * Show the form for creating a new resource.
      */
@@ -47,23 +62,29 @@ class ResidentController extends Controller
     /**
      * Store a newly created resource in storage (Register new resident).
      */
+
     public function store(Request $request)
     {
         try {
             $resident = $this->residentService->registerUser($request->all());
-
+    
+            // Generate public URL for valid_id_path if it exists
+            $resident->valid_id_url = $resident->valid_id_path
+                ? asset(Storage::url($resident->valid_id_path))
+                : null;
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Resident registered successfully',
                 'data' => $resident
             ], 201);
-
+    
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'errors' => $e->errors()
             ], 422);
-
+    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -72,7 +93,7 @@ class ResidentController extends Controller
             ], 500);
         }
     }
-
+    
     /**
      * Display the specified resource.
      */
@@ -81,6 +102,7 @@ class ResidentController extends Controller
         try {
             return response()->json([
                 'status' => 'success',
+                'message' => 'Display Resident successfully',
                 'data' => $resident
             ], 200);
         } catch (\Exception $e) {
@@ -106,9 +128,34 @@ class ResidentController extends Controller
     {
         try {
             $resident = Resident::findOrFail($id);
-
-            $resident = $this->residentService->updateUser($request->all(), $resident);
-
+            
+            // Get all request data
+            $data = $request->all();
+            
+            // Handle file upload BEFORE updating resident
+            if ($request->hasFile('valid_id')) {
+                // Delete old file if exists
+                if ($resident->valid_id_path && Storage::disk('public')->exists($resident->valid_id_path)) {
+                    Storage::disk('public')->delete($resident->valid_id_path);
+                }
+                
+                // Store new file and get the path
+                $path = $request->file('valid_id')->store('uploads/valid_ids', 'public');
+                
+                // Add the path to data array so it gets saved to database
+                $data['valid_id_path'] = $path;
+                
+                // Remove the file object from data (we only want the path)
+                unset($data['valid_id']);
+            }
+    
+            $resident = $this->residentService->updateUser($data, $resident);
+    
+            // Generate public URL for valid_id_path if it exists
+            $resident->valid_id_url = $resident->valid_id_path
+                ? asset(Storage::url($resident->valid_id_path))
+                : null;
+    
             return response()->json([
                 'status' => 'success',
                 'message' => 'Resident updated successfully',
@@ -119,13 +166,13 @@ class ResidentController extends Controller
                 'success' => false,
                 'errors' => $e->errors()
             ], 422);
-
+    
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Resident not found'
             ], 404);
-
+    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

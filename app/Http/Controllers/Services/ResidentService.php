@@ -89,18 +89,18 @@ class ResidentService
             'nationality' => 'sometimes|required|string|max:255',
             'religion' => 'sometimes|required|string|max:255',
             'occupation' => 'sometimes|required|string|max:255',
-
+    
             // Address Information
             'house_number' => 'sometimes|required|string|max:255',
             'street' => 'sometimes|required|string|max:255',
             'zone' => 'sometimes|required|string|max:255',
             'city' => 'sometimes|required|string|max:255',
             'province' => 'sometimes|required|string|max:255',
-
+    
             // Contact Information
             'contact_number' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|email|unique:residents,email,' . $resident->id,
-
+    
             // Parents Information
             'father_first_name' => 'sometimes|required|string|max:255',
             'father_middle_name' => 'nullable|string|max:255',
@@ -108,16 +108,17 @@ class ResidentService
             'mother_first_name' => 'sometimes|required|string|max:255',
             'mother_middle_name' => 'nullable|string|max:255',
             'mother_maiden_name' => 'sometimes|required|string|max:255',
-
+    
             // Valid ID Upload Information
-            'valid_id_path' => 'nullable|string',
+            'valid_id_path' => 'nullable|string',  // This is the stored path
             'upload_id' => 'nullable|string',
+            'upload_date' => 'nullable|date',
         ]);
-
+    
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
-
+    
         try {
             $resident->update($data);
             return $resident;

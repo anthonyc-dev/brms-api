@@ -39,7 +39,7 @@ class ComplainantController extends Controller
             'contact_number' => 'nullable|string|max:20',
             'email' => 'nullable|email',
             'is_anonymous' => 'boolean',
-            'urgency_level' => 'required|in:low,medium,high,emergency',
+            'urgency_level' => 'in:low,medium,high,emergency',
             'witnesses' => 'nullable|string',
             'additional_info' => 'nullable|string',
             'status' => 'nullable|in:pending,under_investigation,resolved,rejected',
