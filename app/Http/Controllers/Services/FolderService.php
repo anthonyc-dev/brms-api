@@ -97,83 +97,118 @@ class FolderService
             return null;
         }
     
-        // Validate inside the service
+        // Validate request
         $validated = $request->validate([
             'folder_name' => 'sometimes|required|string|max:255|unique:folders,folder_name,' . $id,
             'description' => 'nullable|string',
-            'files.*' => 'nullable|file|max:10240', // Max 10MB per file
-            'existing_files' => 'nullable|string', // JSON string of files to keep
+            'files.*' => 'nullable|file|max:10240',
+            'existing_files' => 'nullable|string', // JSON string
         ]);
+    
+        $oldFolderName = $folder->folder_name;
     
         // Update basic fields
         if (isset($validated['folder_name'])) {
             $folder->folder_name = $validated['folder_name'];
         }
-        
         if (isset($validated['description'])) {
             $folder->description = $validated['description'];
         }
     
-        // Handle file updates
-        if ($request->hasFile('files')) {
-            // Get existing files to keep
+        $hasNewFiles = $request->hasFile('files');
+        $hasExistingFilesUpdate = $request->has('existing_files');
+    
+        if ($hasNewFiles || $hasExistingFilesUpdate) {
+    
+            // Decode existing_files safely
             $existingFilesToKeep = [];
             if ($request->has('existing_files')) {
-                $existingFilesToKeep = json_decode($request->input('existing_files'), true) ?? [];
+                $decoded = json_decode($request->input('existing_files'), true);
+                $existingFilesToKeep = is_array($decoded) ? $decoded : [];
             }
     
-            // Path to the folder's directory
-            $folderPath = storage_path('app/public/folders/' . $folder->folder_name);
-            
-            // Get current files
-            $currentFiles = $folder->original_files ?? [];
-            
-            // Delete files that are not in the "keep" list
+            // Normalize original_files to array (FIX)
+            $rawFiles = $folder->original_files;
+    
+            if (is_string($rawFiles)) {
+                $currentFiles = json_decode($rawFiles, true) ?? [];
+            } elseif (is_array($rawFiles)) {
+                $currentFiles = $rawFiles;
+            } else {
+                $currentFiles = [];
+            }
+    
+            // Paths
+            $oldFolderPath = storage_path('app/public/folders/' . $oldFolderName);
+            $newFolderPath = storage_path('app/public/folders/' . $folder->folder_name);
+    
+            // If folder name changed, rename physical folder
+            if ($oldFolderName !== $folder->folder_name && file_exists($oldFolderPath)) {
+                rename($oldFolderPath, $newFolderPath);
+            }
+    
+            // Ensure the new folder exists
+            if (!file_exists($newFolderPath)) {
+                mkdir($newFolderPath, 0755, true);
+            }
+    
+            // Delete files not kept
             foreach ($currentFiles as $currentFile) {
                 if (!in_array($currentFile, $existingFilesToKeep)) {
-                    $filePath = $folderPath . '/' . basename($currentFile);
+                    $filePath = $newFolderPath . '/' . basename($currentFile);
                     if (file_exists($filePath)) {
                         unlink($filePath);
                     }
                 }
             }
     
-            // Add new files
+            // Upload new files
             $newFiles = [];
-            foreach ($request->file('files') as $file) {
-                $originalName = $file->getClientOriginalName();
-                $file->storeAs('public/folders/' . $folder->folder_name, $originalName);
-                $newFiles[] = $originalName;
+            if ($hasNewFiles) {
+                foreach ($request->file('files') as $file) {
+                    $name = $file->getClientOriginalName();
+                    $file->storeAs('public/folders/' . $folder->folder_name, $name);
+                    $newFiles[] = $name;
+                }
             }
     
-            // Combine existing files to keep + new files
-            $allFiles = array_merge($existingFilesToKeep, $newFiles);
+            // Merge kept + new files
+            $allFiles = array_values(array_unique(array_merge($existingFilesToKeep, $newFiles)));
             $folder->original_files = json_encode($allFiles);
     
-            // Recreate the ZIP file with all current files
+            // Delete old ZIP if folder was renamed
+            if ($oldFolderName !== $folder->folder_name) {
+                $oldZip = storage_path('app/public/folders/' . $oldFolderName . '.zip');
+                if (file_exists($oldZip)) unlink($oldZip);
+            }
+    
+            // Remove existing ZIP
             $zipPath = storage_path('app/public/folders/' . $folder->folder_name . '.zip');
-            if (file_exists($zipPath)) {
-                unlink($zipPath); // Delete old ZIP
-            }
+            if (file_exists($zipPath)) unlink($zipPath);
     
-            $zip = new ZipArchive();
-            if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
-                foreach ($allFiles as $file) {
-                    $filePath = $folderPath . '/' . basename($file);
-                    if (file_exists($filePath)) {
-                        $zip->addFile($filePath, basename($file));
+            // Create ZIP if there are files
+            if (count($allFiles) > 0) {
+                $zip = new ZipArchive();
+                if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
+                    foreach ($allFiles as $file) {
+                        $filePath = $newFolderPath . '/' . basename($file);
+                        if (file_exists($filePath)) {
+                            $zip->addFile($filePath, basename($file));
+                        }
                     }
+                    $zip->close();
                 }
-                $zip->close();
+                $folder->zip_name = $folder->folder_name . '.zip';
+            } else {
+                $folder->zip_name = null;
             }
-    
-            $folder->zip_name = $folder->folder_name . '.zip';
         }
     
         $folder->save();
     
         return $folder;
     }
+    
 
     /**
      * Delete folder and its zip file
