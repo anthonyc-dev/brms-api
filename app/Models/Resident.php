@@ -40,6 +40,8 @@ class Resident extends Model
         'mother_first_name',
         'mother_middle_name',
         'mother_maiden_name',
+
+        'status',
         
         // Valid ID Upload Information
         'valid_id_path',

@@ -46,14 +46,25 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         
         // ------------------ Admin file storage----------------------//
         Route::get('/folders', [FolderController::class, 'index']);
-        Route::post('/folders', [FolderController::class, 'store']);         
-        Route::get('/folders/download/{zipName}', [FolderController::class, 'download']); 
+        Route::post('/folders', [FolderController::class, 'store']);
+        Route::get('/folders/download/{zipName}', [FolderController::class, 'download']);
         Route::get('/folders/{id}', [FolderController::class, 'show']);
         Route::put('/folders/{id}', [FolderController::class, 'update']);
         Route::delete('/folders/{id}', [FolderController::class, 'destroy']);
-        Route::post('/folders/{id}/download-selected', [FolderController::class, 'downloadSelected']); 
+        Route::post('/folders/{id}/download-selected', [FolderController::class, 'downloadSelected']);
         Route::post('/folders/downloadSingle/{id}', [FolderController::class, 'downloadSingle']);
-    
+
+        // ------------------ Backup & Restore----------------------//
+        Route::get('/backup/folders', 'BackupController@backupFolderTable')->name('backup-folders');
+        Route::get('/backup/database', 'BackupController@backupDatabase')->name('backup-database');
+        Route::get('/backup/complete', 'BackupController@backupComplete')->name('backup-complete');
+        Route::get('/backup/list', 'BackupController@listBackups')->name('backup-list');
+        Route::get('/backup/download/{backupFileName}', 'BackupController@downloadBackup')->name('backup-download');
+        Route::post('/backup/restore-folders', 'BackupController@restoreBackup')->name('backup-restore-folders');
+        Route::post('/backup/restore-database', 'BackupController@restoreDatabase')->name('backup-restore-database');
+        Route::post('/backup/restore-complete', 'BackupController@restoreComplete')->name('backup-restore-complete');
+        Route::delete('/backup/delete/{backupFileName}', 'BackupController@deleteBackup')->name('backup-delete');
+
         //-----admin update-------//
         Route::get('getById/{id}', 'AdminController@getById')->name('getById');
         
@@ -64,22 +75,27 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
     Route::get('admin-get-event', 'EventController@index')->name('admin-get-event');
     Route::get('getAllByPosted/{posted_by}', 'EventController@getAllByPosted')->name('getAllByPosted');
 
-       // ------------------ Routes Accessible by Both Sanctum & Admin ----------------//
-       Route::middleware('auth:admin,sanctum')->group(function () {
+    // ------------------ Routes Accessible by Both Sanctum & Admin ----------------//
+    Route::middleware('auth:admin,sanctum')->group(function () {
         Route::post('request-document', 'RequestDocumentController@store')->name('request-document');
         Route::get('get-document/{userId}', 'RequestDocumentController@getDocumentsById')->name('get-document');
         Route::put('update-document/{id}', 'RequestDocumentController@update')->name('update-document');
         Route::delete('delete-document/{id}', 'RequestDocumentController@destroy')->name('delete-document');
-        Route::get('getAlldocument', 'RequestDocumentController@index')->name('getAlldocument');
+        Route::get('getAlldocument', 'RequestDocumentController@index')->name('getAlldocument');  
 
-           // ------------------ Complainant ----------------------//
-           Route::post('complainant', 'ComplainantController@store')->name('complainant');
-           Route::get('complainant-get/{userId}', 'ComplainantController@show')->name('complainant-get');
-           Route::put('complainant-update/{id}', 'ComplainantController@update')->name('complainant-update');
-           Route::delete('complainant-delete/{id}', 'ComplainantController@destroy')->name('complainant-delete');
-           Route::get('complainant-history', 'ComplainantController@index')->name('complainant-history');
+          // ------------------ Complainant ----------------------//
+        Route::post('complainant', 'ComplainantController@store')->name('complainant');
+        Route::get('complainant-get/{userId}', 'ComplainantController@show')->name('complainant-get');
+        Route::put('complainant-update/{id}', 'ComplainantController@update')->name('complainant-update');
+        Route::delete('complainant-delete/{id}', 'ComplainantController@destroy')->name('complainant-delete');
+        Route::get('complainant-history', 'ComplainantController@index')->name('complainant-history');
     });
+
+   
+
+   
 });
+ 
 
 // ------------------ Resident login/register----------------------//
 Route::apiResource('residents', ResidentController::class);

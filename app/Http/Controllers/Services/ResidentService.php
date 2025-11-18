@@ -37,6 +37,8 @@ class ResidentService
             // Contact Information
             'contact_number' => 'required|string|max:255',
             'email' => 'required|email|unique:residents,email',
+
+            'status'  => 'nullable|in:pending,approved,reject',
     
             // Parents Information
             'father_first_name' => 'required|string|max:255',
@@ -108,6 +110,8 @@ class ResidentService
             'mother_first_name' => 'sometimes|required|string|max:255',
             'mother_middle_name' => 'nullable|string|max:255',
             'mother_maiden_name' => 'sometimes|required|string|max:255',
+
+            'status'  => 'sometimes|in:pending,approved,reject',
     
             // Valid ID Upload Information
             'valid_id_path' => 'nullable|string',  // This is the stored path

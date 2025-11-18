@@ -85,6 +85,9 @@ class AuthenticationController extends Controller
             $user = Auth::user();
             $token = $user->createToken(name: 'authToken')->plainTextToken;
 
+            // Get resident status
+            $residentStatus = $user->resident?->status;
+
             return response()->json([
                 'response_code' => 200,
                 'status'        => 'success',
@@ -95,6 +98,7 @@ class AuthenticationController extends Controller
                     'email'      => $user->email,
                     'profile'    => $user->profile,
                     'profile_url' => $user->profile_url,
+                    'status'     => $residentStatus,
                 ],
                 'token'       => $token,
                 'token_type'  => 'Bearer',
