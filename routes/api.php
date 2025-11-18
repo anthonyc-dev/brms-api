@@ -20,14 +20,11 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         Route::put('update-password/{id}', 'AuthenticationController@updatePassword')->name('update-password');
         Route::post('update-profile/{id}', 'AuthenticationController@updateProfile')->name('update-profile');
         Route::get('get-profile/{id}', 'AuthenticationController@getProfileById')->name('get-profile');
-       
-       
-        // ------------------ Complainant ----------------------//
-        Route::post('complainant', 'ComplainantController@store')->name('complainant');
-        Route::get('complainant-get/{userId}', 'ComplainantController@show')->name('complainant-get');
-        Route::put('complainant-update/{id}', 'ComplainantController@update')->name('complainant-update');
-        Route::delete('complainant-delete/{id}', 'ComplainantController@destroy')->name('complainant-delete');
-        Route::get('complainant-history', 'ComplainantController@index')->name('complainant-history');
+
+        // ------------------ Email Notifications ----------------------//
+        Route::post('send-test-email', 'NotificationController@sendTestEmail')->name('send-test-email');
+        Route::post('send-notification/{requestId}', 'NotificationController@sendDocumentRequestNotification')->name('send-notification');
+        Route::post('send-to-email', 'NotificationController@sendToEmail')->name('send-to-email');
     });
     
 
@@ -74,6 +71,13 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         Route::put('update-document/{id}', 'RequestDocumentController@update')->name('update-document');
         Route::delete('delete-document/{id}', 'RequestDocumentController@destroy')->name('delete-document');
         Route::get('getAlldocument', 'RequestDocumentController@index')->name('getAlldocument');
+
+           // ------------------ Complainant ----------------------//
+           Route::post('complainant', 'ComplainantController@store')->name('complainant');
+           Route::get('complainant-get/{userId}', 'ComplainantController@show')->name('complainant-get');
+           Route::put('complainant-update/{id}', 'ComplainantController@update')->name('complainant-update');
+           Route::delete('complainant-delete/{id}', 'ComplainantController@destroy')->name('complainant-delete');
+           Route::get('complainant-history', 'ComplainantController@index')->name('complainant-history');
     });
 });
 

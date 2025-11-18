@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Services;
 
 use App\Models\RequestDocument;
+use App\Notifications\DocumentRequestCreated;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class ReqService
@@ -37,7 +39,17 @@ class ReqService
                 $validatedData['status'] = 'pending';
             }
 
-            return RequestDocument::create($validatedData);
+            $requestDocument = RequestDocument::create($validatedData);
+
+            // Send email notification to the user
+            try {
+                $user->notify(new DocumentRequestCreated($requestDocument));
+            } catch (Exception $e) {
+                // Log the error but don't fail the request creation
+                Log::warning('Failed to send email notification: ' . $e->getMessage());
+            }
+
+            return $requestDocument;
         } catch (ValidationException $e) {
             // Rethrow validation exceptions for controller to handle
             throw $e;
