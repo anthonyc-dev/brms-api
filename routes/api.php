@@ -32,20 +32,18 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
     Route::middleware('auth:admin')->group(function () {
         Route::get('admin-dashboard', 'AdminController@dashboard')->name('admin-dashboard');
         Route::post('admin-logout', 'AdminController@logOut')->name('admin-logout');
-        Route::get('admin-display', 'AdminController@index')->name('admin-display');
         Route::get('admin-displayById/{id}', 'AdminController@getById')->name('admin-display');
         Route::put('admin-update/{id}', 'AdminController@update')->name('admin-update');
         Route::delete('admin-delete/{id}', 'AdminController@destroy')->name('admin-delete');
 
          // ------------------ Admin/official event----------------------//
-        Route::get('admin-get-event', 'EventController@index')->name('admin-get-event');
         Route::get('admin-get-event-by-id/{id}', 'EventController@show')->name('admin-get-event-by-id');
         Route::post('admin-event', 'EventController@store')->name('admin-event');
         Route::put('admin-event-update/{id}', 'EventController@update')->name('admin-event-update');  
         Route::delete('admin-event-delete/{id}', 'EventController@destroy')->name('admin-event-delete'); 
         
         // ------------------ Admin file storage----------------------//
-        Route::get('/folders', [FolderController::class, 'index']);
+      
         Route::post('/folders', [FolderController::class, 'store']);
         Route::get('/folders/download/{zipName}', [FolderController::class, 'download']);
         Route::get('/folders/{id}', [FolderController::class, 'show']);
@@ -72,7 +70,6 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         
     });
    //-------General Routes-----------------------//
-    Route::get('admin-get-event', 'EventController@index')->name('admin-get-event');
     Route::get('getAllByPosted/{posted_by}', 'EventController@getAllByPosted')->name('getAllByPosted');
 
     // ------------------ Routes Accessible by Both Sanctum & Admin ----------------//
@@ -89,6 +86,11 @@ Route::group(['namespace' => 'App\Http\Controllers\API'], function () {
         Route::put('complainant-update/{id}', 'ComplainantController@update')->name('complainant-update');
         Route::delete('complainant-delete/{id}', 'ComplainantController@destroy')->name('complainant-delete');
         Route::get('complainant-history', 'ComplainantController@index')->name('complainant-history');
+
+        Route::get('admin-get-event', 'EventController@index')->name('admin-get-event');
+        Route::get('/folders', [FolderController::class, 'index']);
+        Route::get('admin-display', 'AdminController@index')->name('admin-display');
+        
     });
 
    
