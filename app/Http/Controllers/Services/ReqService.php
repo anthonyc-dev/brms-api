@@ -22,7 +22,7 @@ class ReqService
                 'email'            => 'required|email|max:255',
                 'purpose'          => 'required|string',
                 'reference_number' => 'nullable|string|max:255|unique:document_requests,reference_number',
-                'status'           => 'nullable|in:pending,ready'
+                'status'           => 'nullable|in:pending,ready,reject'
             ]);
 
             if ($validator->fails()) {
@@ -83,7 +83,7 @@ class ReqService
                 'email'            => 'sometimes|required|email|max:255',
                 'purpose'          => 'sometimes|required|string',
                 'reference_number' => 'sometimes|nullable|string|max:255|unique:document_requests,reference_number,' . $requestDocument->id,
-                'status'           => 'sometimes|in:pending,ready',
+                'status'           => 'sometimes|in:pending,ready,reject',
             ]);
 
             if ($validator->fails()) {
